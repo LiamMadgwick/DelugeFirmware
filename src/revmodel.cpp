@@ -28,34 +28,13 @@
 revmodel::revmodel()
 {
 	setwet(initialwet);
-	setroomsize(initialroom);
 	setdry(initialdry);
-	setdamp(initialdamp);
-	setwidth(initialwidth);
 	setmode(initialmode);
 
-	for(int i = 0; i < 4; i++)
-	{
-		id_apf[i].reset();
-		id_apf[i].allpass_settings(id_apf_times[i], id_apf_gains[i]);
-		output_matrix[i].reset();
-	}
-	for(int i = 0; i < 3; i++)
-	{
-		tank0_apf_out[i].reset();
-		tank0_apf_out[i].allpass_settings(tank0_apf_times[i], tank_out_gain);
-		tank1_apf_out[i].reset();
-		tank1_apf_out[i].allpass_settings(tank1_apf_times[i], tank_out_gain);
-	}
-	for(int i = 0; i < 2; i++)
-	{
-		tank_apm[i].reset();
-		tank_apm[i].allpass_settings(tank_apm_times[i], tank_apm_gain);
-		lfo[i].set_frequency(lfo_rates[i]);
-	}
-
-	gain = 0.125f * 2147483648u;
-	gain2 = 0.5f * 2147483648u;
+	setroomsize(1.f);
+	setdamp(0.1f);
+	setwidth(1.0f);
+	reverb.init(44100);
 
 }
 
@@ -63,30 +42,11 @@ void revmodel::mute()
 {
 	if (getmode() >= freezemode)
 		return;
-
-	for(int i = 0; i < 4; i++)
-	{
-		id_apf[i].reset();
-
-		output_matrix[i].reset();
-	}
-	for(int i = 0; i < 2; i++)
-	{
-		tank_apm[i].reset();
-		lfo[i].set_frequency(lfo_rates[i]);
-	}
-	for(int i = 0; i < 3; i++)
-	{
-		tank0_apf_out[i].reset();
-		tank1_apf_out[i].reset();
-	}
 }
 
 void revmodel::update()
 {
 // Recalculate internal values after parameter change
-	damp1 = damp * 2147483648u;
-	spread = width * 2147483648u;
 }
 
 // The following get/set functions are not inlined, because
@@ -96,56 +56,52 @@ void revmodel::update()
 
 void revmodel::setroomsize(float value)
 {
-	roomsize = value * 1.f;
-	update();
+	roomsize = value;
 }
 
 float revmodel::getroomsize()
 {
-	return roomsize / 1.f;
+	return roomsize;
 }
 
 void revmodel::setdamp(float value)
 {
-	damp = (value * 0.5f);
-	update();
+	damp = value;
 }
 
 float revmodel::getdamp()
 {
-	return (damp / 0.5f);
+	return damp;
 }
 
 void revmodel::setwet(float value)
 {
-	wet = value*scalewet;
-	update();
+	wet = value* 1.f;
 }
 
 float revmodel::getwet()
 {
-	return wet/scalewet;
+	return wet /1.f;
 }
 
 void revmodel::setdry(float value)
 {
-	dry = value*scaledry;
+	dry = value * 1.f;
 }
 
 float revmodel::getdry()
 {
-	return dry/scaledry;
+	return dry / 1.f;
 }
 
 void revmodel::setwidth(float value)
 {
-	width = value * 0.5f;
-	update();
+	width = value * 1.f;
 }
 
 float revmodel::getwidth()
 {
-	return width / 0.5f;
+	return width / 1.f;
 }
 
 void revmodel::setmode(float value)
